@@ -1,0 +1,10 @@
+{% extends 'events/base.html' %}
+
+{% block content %}
+  <h2>Register User</h2>
+  <form method="post" action="{% url 'register_user' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Register</button>
+  </form>
+{% endblock %}
