@@ -1,4 +1,3 @@
-# events/views.py
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -6,8 +5,8 @@ from django.http import Http404
 from .models import Event, UserRegistration
 from .forms import EventForm, UserRegistrationForm
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import login, logout, authenticate
-
+from django.contrib.auth import login, logout
+from django.db.models import Q
 
 
 
@@ -58,7 +57,7 @@ def register_user(request):
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)  # Log in the user after registration
+            login(request, user) 
             return redirect('home')
     else:
         form = UserRegistrationForm()
@@ -68,6 +67,7 @@ def register_user(request):
 def logout_user(request):
     logout(request)
     return redirect('home')
+
 
 def login_user(request):
     if request.method == 'POST':
@@ -80,6 +80,7 @@ def login_user(request):
         form = AuthenticationForm()
 
     return render(request, 'registration/login_user.html', {'form': form})
+
 
 @login_required
 def unregister_event(request, event_id):
@@ -95,6 +96,22 @@ def unregister_event(request, event_id):
             event.available_slots += 1
             event.save()
         except UserRegistration.DoesNotExist:
-            pass  # Handle the case where the user is not registered for the event
+            pass  # 
 
     return redirect('event_detail', event_id=event.id)
+
+
+def search_events(request):
+    query = request.GET.get('q')
+    if query:
+        events = Event.objects.filter(Q(title__icontains=query) | Q(description__icontains=query))
+    else:
+        events = Event.objects.all()
+
+    return render(request, 'events/search_events.html', {'events': events, 'query': query})
+
+
+@login_required
+def user_dashboard(request):
+    user_registrations = UserRegistration.objects.filter(user=request.user)
+    return render(request, 'events/user_dashboard.html', {'user_registrations': user_registrations})
