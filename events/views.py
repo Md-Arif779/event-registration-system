@@ -7,20 +7,29 @@ from .forms import EventForm, UserRegistrationForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout
 from django.db.models import Q
-
+from django.contrib import messages
 
 
 
 def home(request):
-    return render(request, 'events/home.html')
+    location_filter = request.GET.get('filter_location', '')
+    title_filter = request.GET.get('search', '')
+
+    # Filter events based on location and title
+    events = Event.objects.filter(
+        Q(location_name__icontains=location_filter) | Q(title__icontains=title_filter)
+    )
+    return render(request, 'events/home.html', {'events': events})
 
 
+@login_required
 def create_event(request):
     if request.method == 'POST':
         form = EventForm(request.POST)
         if form.is_valid():
             event = form.save()
-            return redirect('event_detail', event_id=event.id)
+            messages.success(request, 'Event created successfully!')  # Add a success message
+            return redirect('home')  # Redirect to the home page
     else:
         form = EventForm()
 
@@ -58,7 +67,7 @@ def register_user(request):
         if form.is_valid():
             user = form.save()
             login(request, user) 
-            return redirect('home')
+            return redirect('login_user')
     else:
         form = UserRegistrationForm()
 
@@ -101,6 +110,10 @@ def unregister_event(request, event_id):
     return redirect('event_detail', event_id=event.id)
 
 
+
+
+
+
 def search_events(request):
     query = request.GET.get('q')
     if query:
@@ -109,6 +122,7 @@ def search_events(request):
         events = Event.objects.all()
 
     return render(request, 'events/search_events.html', {'events': events, 'query': query})
+
 
 
 @login_required

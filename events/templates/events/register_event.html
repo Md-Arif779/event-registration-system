@@ -1,10 +1,14 @@
+<!-- events/templates/events/register_event.html -->
 {% extends 'events/base.html' %}
 
+{% block title %}Register for Event - Event Registration System{% endblock %}
+
 {% block content %}
-  <h2>Register for Event - {{ event.title }}</h2>
-  <form method="post" action="{% url 'register_event' event.id %}">
-    {% csrf_token %}
-    
-    <button type="submit" class="btn btn-primary">Register</button>
-  </form>
+    <div class="container mt-4">
+        <h2>Register for Event</h2>
+        <!-- Add your registration form fields here -->
+    </div>
 {% endblock %}
+
+
+

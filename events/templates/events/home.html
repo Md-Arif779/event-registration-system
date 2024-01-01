@@ -1,5 +1,91 @@
+<!-- events/templates/events/home.html -->
 {% extends 'events/base.html' %}
 
+{% block title %}Home - Event Registration System{% endblock %}
+
 {% block content %}
- 
+<div class="container mt-4">
+    <h2>Upcoming Events</h2>
+
+    <!-- Filter and Search Form -->
+    <form method="get" action="{% url 'home' %}">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="filter_location">Filter by Location:</label>
+                    <input type="text" class="form-control" id="filter_location" name="filter_location" placeholder="Search by Location..." value="{{ request.GET.filter_location }}">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="search">Search by Title:</label>
+                    <input type="text" class="form-control" id="search" name="search" placeholder="Search..." value="{{ request.GET.search }}">
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    <!-- Event List Table -->
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Location</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in events %}
+                <tr>
+                    <td><a href="{% url 'event_detail' event.id %}">{{ event.title }}</a></td>
+                    <td>{{ event.description }}</td>
+                    <td>{{ event.date }}</td>
+                    <td>{{ event.time }}</td>
+                    <td>{{ event.location_name }}</td>
+                    <td>
+                        <a href="{% url 'event_detail' event.id %}" class="btn btn-info btn-sm">View</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Create Event Form -->
+    <div class="mt-4">
+        <h2>Create Event</h2>
+        <form method="post" action="{% url 'create_event' %}">
+            {% csrf_token %}
+            <!-- Your form fields go here -->
+            <button type="submit" class="btn btn-success">Create Event</button>
+        </form>
+    </div>
+
+    <!-- Register for Event Form -->
+    <div class="mt-4">
+        <h2>Register for Event</h2>
+        {% if user.is_authenticated %}
+            <!-- Form to register for an event -->
+            <form method="post" action="">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success">Register for this Event</button>
+            </form>
+        {% else %}
+            <p>Please <a href="{% url 'login_user' %}">login</a> to create or register for events.</p>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}
+
+
+
+
+
+
+
+
+
+

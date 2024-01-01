@@ -1,14 +1,43 @@
+<!-- events/templates/events/user_dashboard.html -->
+<!-- events/templates/events/dashboard.html -->
 {% extends 'events/base.html' %}
 
+{% block title %}Dashboard - Event Registration System{% endblock %}
+
 {% block content %}
-  <h2>User Dashboard</h2>
-  {% if user_registrations %}
-    <ul>
-      {% for registration in user_registrations %}
-        <li>{{ registration.event.title }} - {{ registration.event.date }} - {{ registration.event.time }}</li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>No registrations yet.</p>
-  {% endif %}
+<div class="container mt-4">
+    <h2>My Dashboard</h2>
+
+    <h3>Registered Events</h3>
+
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Location</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for registration in user_registrations %}
+                <tr>
+                    <td><a href="{% url 'event_detail' registration.event.id %}">{{ registration.event.title }}</a></td>
+                    <td>{{ registration.event.description }}</td>
+                    <td>{{ registration.event.date }}</td>
+                    <td>{{ registration.event.time }}</td>
+                    <td>{{ registration.event.location_name }}</td>
+                    <td>
+                        <a href="{% url 'event_detail' registration.event.id %}" class="btn btn-info btn-sm">View</a>
+                        <a href="{% url 'unregister_event' registration.event.id %}" class="btn btn-danger btn-sm">Unregister</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}
+
+

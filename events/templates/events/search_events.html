@@ -1,14 +1,20 @@
+<!-- search_events.html -->
+
 {% extends 'events/base.html' %}
 
 {% block content %}
-  <h2>Search Results for "{{ query }}"</h2>
-  {% if events %}
+<div class="container mt-5">
+    <h1>Search Results</h1>
+    {% if query %}
+        <p>Showing results for: <strong>{{ query }}</strong></p>
+    {% endif %}
     <ul>
-      {% for event in events %}
-        <li>{{ event.title }} - {{ event.date }}</li>
-      {% endfor %}
+        {% for event in events %}
+            <li>
+                <a href="{% url 'event_detail' event_id=event.id %}">{{ event.title }}</a>
+                <p>{{ event.description }}</p>
+            </li>
+        {% endfor %}
     </ul>
-  {% else %}
-    <p>No results found.</p>
-  {% endif %}
+</div>
 {% endblock %}

@@ -11,6 +11,12 @@ class Event(models.Model):
     location_name = models.CharField(max_length=255)
     available_slots = models.PositiveIntegerField()
 
+    def __str__(self):
+        return self.title
+
 class UserRegistration(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user
