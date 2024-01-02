@@ -1,5 +1,5 @@
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from .models import Event, UserRegistration
@@ -11,15 +11,21 @@ from django.contrib import messages
 
 
 
+@login_required
 def home(request):
     location_filter = request.GET.get('filter_location', '')
     title_filter = request.GET.get('search', '')
 
-    # Filter events based on location and title
+    
     events = Event.objects.filter(
         Q(location_name__icontains=location_filter) | Q(title__icontains=title_filter)
     )
-    return render(request, 'events/home.html', {'events': events})
+
+    
+    event = events.first()
+
+    return render(request, 'events/home.html', {'events': events, 'event': event})
+
 
 
 @login_required
@@ -28,17 +34,17 @@ def create_event(request):
         form = EventForm(request.POST)
         if form.is_valid():
             event = form.save()
-            messages.success(request, 'Event created successfully!')  # Add a success message
-            return redirect('home')  # Redirect to the home page
+            messages.success(request, 'Event created successfully!')  # 
+            return redirect('home')  
     else:
         form = EventForm()
 
     return render(request, 'events/create_event.html', {'form': form})
 
 @login_required
-def register_event(request, event_id):
+def register_event(request, event):
     try:
-        event = Event.objects.get(pk=event_id)
+        event = Event.objects.get(pk=event)
     except Event.DoesNotExist:
         raise Http404("Event does not exist")
 
@@ -49,7 +55,8 @@ def register_event(request, event_id):
                 event.available_slots -= 1
                 event.save()
 
-    return render(request, 'events/register_event.html', {'event': event})
+    return render(request, 'events/user_dashboard.html', {'event': event})
+
 
 
 def event_detail(request, event_id):
@@ -77,7 +84,6 @@ def logout_user(request):
     logout(request)
     return redirect('home')
 
-
 def login_user(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, request.POST)
@@ -89,30 +95,6 @@ def login_user(request):
         form = AuthenticationForm()
 
     return render(request, 'registration/login_user.html', {'form': form})
-
-
-@login_required
-def unregister_event(request, event_id):
-    try:
-        event = Event.objects.get(pk=event_id)
-    except Event.DoesNotExist:
-        raise Http404("Event does not exist")
-
-    if request.method == 'POST':
-        try:
-            registration = UserRegistration.objects.get(user=request.user, event=event)
-            registration.delete()
-            event.available_slots += 1
-            event.save()
-        except UserRegistration.DoesNotExist:
-            pass  # 
-
-    return redirect('event_detail', event_id=event.id)
-
-
-
-
-
 
 def search_events(request):
     query = request.GET.get('q')
@@ -127,5 +109,25 @@ def search_events(request):
 
 @login_required
 def user_dashboard(request):
+    
     user_registrations = UserRegistration.objects.filter(user=request.user)
+
     return render(request, 'events/user_dashboard.html', {'user_registrations': user_registrations})
+
+@login_required
+def unregister_event(request, event_id):
+    
+    event = get_object_or_404(Event, pk=event_id)
+
+    
+    registration = UserRegistration.objects.filter(user=request.user, event=event).first()
+
+    if registration:
+        
+        registration.delete()
+        
+        event.available_slots += 1
+        event.save()
+
+    return redirect('user_dashboard')
+

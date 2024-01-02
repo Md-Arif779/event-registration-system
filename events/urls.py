@@ -7,14 +7,14 @@ from .api_views import EventListAPIView, EventDetailAPIView, UserRegistrationCre
 urlpatterns = [
     path('', home, name="home"),
     path('create/', create_event, name='create_event'),
-    path('register/<int:event_id>/', register_event, name='register_event'),
+    path('register/<int:event>/', register_event, name='register_event'),
     path('event/<int:event_id>/', event_detail, name='event_detail'),
     path('register/', register_user, name='register_user'),
     path('login/', login_user, name='login_user'),
     path('logout/', logout_user, name='logout_user'),
-    path('unregister/<int:event_id>/', unregister_event, name='unregister_event'),
     path('search/', search_events, name='search_events'),
-    path('dashboard/', user_dashboard, name='user_dashboard'), 
+    path('user-dashboard/', user_dashboard, name='user_dashboard'),
+    path('unregister-event/<int:event_id>/', unregister_event, name='unregister_event'), 
 
     # API Endpoints
     path('api/events/', EventListAPIView.as_view(), name='api_event_list'),
